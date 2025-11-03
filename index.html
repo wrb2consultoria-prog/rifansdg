@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#095c7d">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <title>Ação Entre Amigos<br>Air Fryer 4,6L 1500W</title>
+  <style>
+    /* ===== BASE ===== */
+    :root { font-family: Inter, system-ui, -apple-system, Roboto, 'Segoe UI', Arial; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f0f3f3;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, #095c7d, #6caccc);
+      color: white;
+      text-align: center;
+      padding: 20px 10px;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 15px; text-align: center; }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #7c9cac;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .tab-btn.active {
+      background: #095c7d;
+      font-weight: bold;
+    }
+
+    /* ===== TAB CONTENT ===== */
+    .tab-content {
+      display: none;
+      padding: 20px 10px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .tab-content.active { display: block; }
+
+    /* ===== RIFA HEADER ===== */
+    .rifa-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .rifa-header img {
+      width: 260px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      background-color: white;
+      transition: transform 0.3s ease;
+    }
+    .rifa-header img:hover { transform: scale(1.05); }
+
+    /* ===== DASHBOARD ===== */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card {
+      background: linear-gradient(135deg, #095c7d, #6caccc);
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+    .card:hover { transform: scale(1.05); }
+    .card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .card p { font-size: 1.5rem; font-weight: bold; }
+
+    /* ===== CONTROLS ===== */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    input[type=number], input[type=text] {
+      padding: 6px;
+      border: 1px solid #cbd7db;
+      border-radius: 6px;
+    }
+    button {
+      background: #095c7d;
+      color: white;
+      border: none;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    button:hover { opacity: 0.9; }
+    button.secondary { background: #7c9cac; }
+
+    /* ===== GRID DE BILHETES ===== */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .ticket {
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: #fff;
+      transition: transform 0.2s ease;
+    }
+    .ticket .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .ticket:hover { transform: scale(1.03); }
+    .ticket.available { background: linear-gradient(135deg, #3ccf63, #2fa84b); }
+    .ticket.sold { background: linear-gradient(135deg, #ff6b6b, #ff8787); opacity: 0.9; }
+    .ticket .top { display: flex; align-items: center; justify-content: space-between; }
+    .ticket .num { font-weight: 700; }
+    .ticket .buyer { font-size: 13px; color: #fff; }
+    .winner { border: 3px solid #ffcc00; }
+
+    /* ===== MODAIS ===== */
+    #ticketModal, #buyModal {
+      display: none;
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 10px;
+    }
+    #ticketModal .modal-content, #buyModal .modal-content {
+      background: linear-gradient(135deg, #095c7d, #6caccc);
+      padding: 25px 20px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      color: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      animation: fadeIn 0.3s ease;
+    }
+    #ticketModal .modal-content h2, #buyModal .modal-content h2 { font-size: 22px; margin-bottom: 15px; }
+    #ticketModal .modal-content p, #buyModal .modal-content p { margin: 8px 0; font-size: 16px; }
+    #ticketModal .close-btn, #buyModal .close-btn {
+      position: absolute;
+      top:10px; right:10px;
+      background:#ffcc00; color:#095c7d;
+      border:none; border-radius:50%;
+      width:30px; height:30px;
+      font-weight:bold; cursor:pointer;
+      font-size:18px; line-height:28px;
+    }
+    #ticketModal .prize {
+      background: rgba(255,255,255,0.2);
+      padding:8px 12px;
+      border-radius:8px;
+      margin:10px 0;
+      font-weight:bold;
+    }
+    #buyModal input {
+      width: 90%;
+      padding: 6px;
+      margin: 6px 0;
+      border-radius: 6px;
+      border: 1px solid #cbd7db;
+    }
+    #buyModal button[type=submit] {
+      background: #ffcc00;
+      color: #095c7d;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn { from {opacity:0; transform:scale(0.9);} to {opacity:1; transform:scale(1);} }
+
+    @media (max-width:768px){
+      header h1 { font-size: 1.4rem; }
+      .rifa-header { flex-direction: column; gap: 15px; }
+      .rifa-header img { width: 80%; }
+      .controls { flex-direction: column; align-items: flex-start; }
+      button { width: 100%; }
+    }
+
+    footer {
+      background: #095c7d;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ação Entre Amigos<br>Air Fryer 4,6L 1500W</h1>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-rifa">Cartela</button>
+      <button class="tab-btn" data-tab="tab-premio">Prêmio</button>
+      <button class="tab-btn" data-tab="tab-venda">Venda</button>
+	  <button class="tab-btn" data-tab="tab-pix">Pix Pagamento</button>
+      <button class="tab-btn" data-tab="tab-dashboard">Dashboard</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ABA RIFA -->
+    <div id="tab-rifa" class="tab-content active">
+      <div class="rifa-header">
+        <img src="imagem/rifa.jpg" alt="Cartela da Sorte">
+      </div>
+    </div>
+
+    <!-- ABA PRÊMIO -->
+    <div id="tab-premio" class="tab-content">
+      <div class="rifa-header">
+        <img src="imagem/premio.png" alt="Prêmio Airfryer Mondial">
+      </div>
+    </div>
+
+    <!-- ABA VENDA -->
+    <div id="tab-venda" class="tab-content">
+      <div class="controls" id="controls" style="display:none;">
+        <div>Vendidos: <span id="soldCount">0</span> | Disponíveis: <span id="availCount">100</span></div>
+        <label>Preço R$ <input id="price" type="number" min="0" value="10" style="width:80px"></label>
+        <button id="exportBtn" disabled>Exportar CSV</button>
+        <button id="drawBtn" disabled>Sortear</button>
+        <button id="resetBtn" class="secondary" disabled>Resetar tudo</button>
+      </div>
+      <div id="grid"></div>
+    </div>
+	
+	<!-- ABA PIX PAGAMENTO -->
+	<div id="tab-pix" class="tab-content">
+	  <h2 style="text-align:center; color:#095c7d;">💳 Pagamento via Pix</h2>
+	  <div class="rifa-header">
+		<img src="imagem/qrcode.jpeg" alt="QR Code Pix" style="width:280px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); background:white;">
+	  </div>
+	  <p style="text-align:center; margin-top:15px; font-weight:500;">
+		Escaneie o QR Code acima para realizar o pagamento via Pix.<br><strong>Venda</strong>.
+	  </p>
+	</div>
+
+    <!-- ABA DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content">
+      <h2 style="text-align:center; color:#095c7d;">📊 Controle de Bilhete</h2>
+      <div class="dashboard">
+        <div class="card">
+          <h3>Total Vendidos</h3>
+          <p id="dashSold">0</p>
+        </div>
+        <div class="card">
+          <h3>Total Disponíveis</h3>
+          <p id="dashAvailable">0</p>
+        </div>
+        <div class="card">
+          <h3>Valor Arrecadado</h3>
+          <p id="dashValue">R$ 0,00</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL DETALHES DO BILHETE -->
+  <div id="ticketModal">
+    <div class="modal-content">
+      <button id="closeModal" class="close-btn">×</button>
+      <h2 id="modalTitle">Bilhete</h2>
+      <p id="modalName"></p>
+      <p id="modalBuyer"></p>
+      <p id="modalPhone"></p>
+      <p id="modalPrice"></p>
+      <p id="modalStatus"></p>
+      <p id="modalSeller"></p>
+      <p>📅 Sorteio: 30/11/2025</p>
+    </div>
+  </div>
+
+  <!-- MODAL COMPRA -->
+  <div id="buyModal">
+    <div class="modal-content">
+      <button id="closeBuyModal" class="close-btn">×</button>
+      <h2>Comprar Bilhete</h2>
+      <form id="buyForm">
+        <p id="buyTicketNum"></p>
+        <label>Nome do comprador:<br>
+          <input type="text" id="buyerName" required>
+        </label>
+        <label>Telefone (DDD + número):<br>
+          <input type="text" id="buyerPhone" placeholder="11999999999" required pattern="\d{10,11}">
+        </label>
+        <label>Preço (R$):<br>
+          <input type="number" id="buyerPrice" min="10" max="10" step="0.01" required disabled>
+        </label>
+        <div class="rifa-header">
+          <img src="imagem/qrcode.jpeg" alt="QR Code">
+        </div>
+        <button type="submit">Confirmar Compra</button>
+      </form>
+    </div>
+  </div>
+
+<!-- MODAL DEFINIR VENDEDOR (estático no HTML, mais confiável) -->
+<div id="sellerModal" >
+  <div style="
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center;
+    z-index:9999; padding:10px;
+  ">
+    <div id="sellerModalContent" style="
+      background: linear-gradient(135deg, #095c7d, #6caccc);
+      padding: 25px 20px;
+      border-radius: 16px;
+      color: white;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      animation: fadeIn 0.3s ease;
+    ">
+      <h2>Identifique-se como Vendedor</h2>
+      <p>Digite seu telefone (apenas números):</p>
+      <input type="text" id="sellerPhoneInput" placeholder="62999999999"
+             style="width:90%; padding:8px; border-radius:8px; border:none; margin-top:10px; text-align:center;">
+      <div style="margin-top:12px;">
+        <button id="saveSellerBtn" style="
+          background:#ffcc00; color:#095c7d; border:none; border-radius:8px;
+          padding:8px 16px; margin-top:5px; cursor:pointer; font-weight:bold;">
+          Confirmar
+        </button>
+        <button id="cancelSellerBtn" style="
+          background: #7c9cac; color: white; border:none; border-radius:8px;
+          padding:8px 16px; margin-top:5px; cursor:pointer; font-weight:bold; margin-left:8px;">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Footer -->
+  <footer>
+    <small>Paroquia Nossa Senhora das Graças - Jardim América.</small>
+  </footer>
+
+  <script>
+    // ===== ATUALIZAR PREÇO DINAMICAMENTE =====
+  const priceInput = document.getElementById('price');
+  if (priceInput) {
+    // ajusta os limites conforme solicitado
+    priceInput.min = 0;
+    priceInput.max = 100;
+    priceInput.step = 1;
+
+    // atualiza os bilhetes não vendidos ao mudar o valor
+    priceInput.addEventListener('input', async () => {
+      const newPrice = Number(priceInput.value);
+      if (isNaN(newPrice) || newPrice < 0 || newPrice > 100) return;
+
+      // aplica apenas aos bilhetes disponíveis
+      tickets.forEach(t => {
+        if (!t.sold) t.price = newPrice;
+      });
+
+      await saveTickets();
+      renderTickets();
+    });
+  }
+	// ===== MODAL PARA DEFINIR VENDEDOR =====
+	const sellerModal = document.getElementById('sellerModal');
+	const sellerPhoneInput = document.getElementById('sellerPhoneInput');
+	const saveSellerBtn = document.getElementById('saveSellerBtn');
+	const cancelSellerBtn = document.getElementById('cancelSellerBtn');
+
+	function openSellerModal() {
+	  sellerPhoneInput.value = CURRENT_SELLER || '';
+	  sellerModal.style.display = 'block';
+	  sellerPhoneInput.focus();
+	}
+
+	function closeSellerModal() {
+	  sellerModal.style.display = 'none';
+	}
+
+	// Pega vendedor atual (se houver)
+	let CURRENT_SELLER = localStorage.getItem("CURRENT_SELLER") || "";
+	openSellerModal();
+	// Se não tiver vendedor definido, abrir o modal
+	if (!CURRENT_SELLER) {
+	  // aguarda 200ms para garantir renderização amigável em alguns navegadores
+	  setTimeout(openSellerModal, 200);
+	}
+
+	// Ao salvar
+	saveSellerBtn.addEventListener('click', () => {
+	  const phone = (sellerPhoneInput.value || '').trim().replace(/\D/g, "");
+	  if (!/^\d{10,11}$/.test(phone)) {
+		return alert("Digite um telefone válido (DDD + número). Ex: 11999999999");
+	  }
+	  localStorage.setItem("CURRENT_SELLER", phone);
+	  CURRENT_SELLER = phone;
+	  closeSellerModal();
+
+	  // Atualiza visibilidade dos controles se for admin
+	  checkSellerControls();
+	});
+
+	// Cancelar (fecha modal, mas não salva)
+	cancelSellerBtn.addEventListener('click', () => {
+	  closeSellerModal();
+	});
+
+	// Função para habilitar/desabilitar controles de admin
+	function checkSellerControls() {
+	  const controls = document.getElementById('controls');
+	  const dashboardTab = document.querySelector('[data-tab="tab-dashboard"]').parentElement; 
+	  const ADMINS = ["62992853154"]; // números autorizados
+
+	  if (!controls) return;
+
+	  if (ADMINS.includes(CURRENT_SELLER)) {
+		// Mostrar controles e dashboard
+		controls.style.display = 'flex';
+		['resetBtn', 'drawBtn', 'exportBtn'].forEach(id => {
+		  const el = document.getElementById(id);
+		  if (el) el.disabled = false;
+		});
+		document.getElementById('resetBtn').onclick = resetAll;
+		document.getElementById('drawBtn').onclick = drawWinner;
+		document.getElementById('exportBtn').onclick = exportCSV;
+
+		// ✅ Mostrar botão Dashboard
+		document.querySelector('[data-tab="tab-dashboard"]').style.display = 'inline-block';
+	  } else {
+		// Ocultar controles e dashboard
+		controls.style.display = 'none';
+		['resetBtn', 'drawBtn', 'exportBtn'].forEach(id => {
+		  const el = document.getElementById(id);
+		  if (el) el.disabled = true;
+		});
+
+		// 🚫 Esconde a aba Dashboard
+		document.querySelector('[data-tab="tab-dashboard"]').style.display = 'none';
+
+		// Se estava aberta, voltar pra aba principal
+		if (document.getElementById('tab-dashboard').classList.contains('active')) {
+		  document.querySelector('[data-tab="tab-rifa"]').click();
+		}
+	  }
+	}
+
+
+	// chamada inicial para ajustar UI conforme seller existente
+	checkSellerControls();
+
+
+  // Mostra controles apenas para vendedor específico
+  if (CURRENT_SELLER === "62992853154") {
+    const controls = document.getElementById('controls');
+    controls.style.display = 'flex';
+    ['resetBtn','drawBtn','exportBtn'].forEach(id => document.getElementById(id).disabled=false);
+    document.getElementById('resetBtn').onclick = resetAll;
+    document.getElementById('drawBtn').onclick = drawWinner;
+    document.getElementById('exportBtn').onclick = exportCSV;
+  }
+
+    // ===== CONFIGURAÇÃO JSONBIN.IO =====
+    const BIN_ID = "68f285d1d0ea881f40a87b51";
+    const API_KEY = "$2a$10$pmEY8YkaQKUWQfJXKHGrn.N5lsPOpeo3TKJKXqJuM.eXUVatRwcdm";
+    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+    // ===== TABS =====
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        updateDashboard();
+      });
+    });
+
+    // ===== SERVICE WORKER =====
+	  // 🧩 Registro do Service Worker com detecção de nova versão
+	  if ('serviceWorker' in navigator) {
+		window.addEventListener('load', () => {
+		  navigator.serviceWorker.register('./sw.js')
+			.then((registration) => {
+			  console.log('✅ Service Worker registrado com sucesso:', registration.scope);
+
+			  // Escuta quando há uma atualização disponível
+			  registration.addEventListener('updatefound', () => {
+				const newWorker = registration.installing;
+				console.log('🆕 Nova versão do Service Worker encontrada...');
+
+				newWorker.addEventListener('statechange', () => {
+				  if (newWorker.state === 'installed') {
+					if (navigator.serviceWorker.controller) {
+					  // Nova versão disponível — mostra alerta
+					  showUpdateNotification();
+					} else {
+					  console.log('📲 App instalado e pronto para uso offline.');
+					}
+				  }
+				});
+			  });
+			})
+			.catch((error) => {
+			  console.error('❌ Falha ao registrar Service Worker:', error);
+			});
+		});
+	  }
+
+	  // 🔔 Função para mostrar aviso de nova versão
+	  function showUpdateNotification() {
+		const div = document.createElement('div');
+		div.innerHTML = `
+		  <div style="
+			position: fixed;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: #095c7d;
+			color: white;
+			padding: 12px 20px;
+			border-radius: 10px;
+			box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-family: sans-serif;
+			z-index: 9999;
+		  ">
+			<span>🆕 Nova versão disponível!</span>
+			<button id="updateApp" style="
+			  background: #fff;
+			  color: #095c7d;
+			  border: none;
+			  padding: 6px 12px;
+			  border-radius: 6px;
+			  cursor: pointer;
+			  font-weight: bold;
+			">Atualizar</button>
+		  </div>
+		`;
+		document.body.appendChild(div);
+
+		// Ao clicar, recarrega a página com a nova versão
+		document.getElementById('updateApp').addEventListener('click', () => {
+		  if (navigator.serviceWorker.controller) {
+			navigator.serviceWorker.controller.postMessage({ action: 'skipWaiting' });
+		  }
+		  location.reload(true);
+		});
+	  }
+
+
+    // ===== NOMES =====
+    const names = ["Alessandra","Alice","Amélia","Ana","Andréia","Angela","Anita","Aparecida","Arieta","Áurea"
+					,"Bárbara","Beatriz","Berenice","Bianca","Brigitte","Camila","Carla","Cátia","Cecília","Clarisse",
+					"Cláudia","Cleonice","Cristina","Dagmar","Daniella","Débora","Deize","Denise","Diana","Digelaine",
+					"Elaine","Eliane","Elizabeth","Emília","Érica","Eva","Fátima","Felicia","Fernanda","Gabriela",
+					"Geórgia","Gilmara","Gisele","Guiomar","Helena","Heleonora","Helga","Heloísa","Iêde","Iracema",
+					"Ivana","Ivonete","Izabel","Janaína","Janete","Jaqueline","Jeanine","Joana","Josylene","Juliana",
+					"Larissa","Letícia","Lilian","Luciana","Lúcia","Lucyene","Ludmila","Maísa","Mara","Maria",
+					"Marina","Milka","Nádia","Nair","Natália","Neuza","Nilva","Odete","Olívia","Otávia",
+					"Ozana","Patrícia","Paula","Polyana","Priscila","Rejane","Renata","Rosa","Rosemary","Selma",
+					"Silvia","Sirlene","Taisa","Tânia","Tatiana","Telma","Valéria","Vera","Virginia","Viviane"];
+    while(names.length < 100) names.push('Nome ' + (names.length+1));
+
+    let tickets = [];
+
+    // ===== CARREGAR BILHETES =====
+    async function loadTickets() {
+      try {
+        const res = await fetch(BIN_URL, { headers: { "X-Master-Key": API_KEY } });
+        const data = await res.json();
+        if(data.record && data.record.tickets?.length) {
+          tickets = data.record.tickets;
+        } else {
+          tickets = names.map((n,i) => ({id:i+1,name:n,buyer:null,phone:null,price:10,sold:false}));
+          await saveTickets();
+        }
+      } catch(e) {
+        tickets = names.map((n,i) => ({id:i+1,name:n,buyer:null,phone:null,price:10,sold:false}));
+      }
+      renderTickets();
+      updateDashboard();
+    }
+
+    // ===== SALVAR BILHETES =====
+    async function saveTickets() {
+      try {
+        await fetch(BIN_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+          body: JSON.stringify({ tickets })
+        });
+        updateCounts();
+        updateDashboard();
+      } catch(e) { console.error(e); }
+    }
+
+    // ===== CONTADORES =====
+    function updateCounts() {
+      document.getElementById('soldCount').textContent = tickets.filter(t=>t.sold).length;
+      document.getElementById('availCount').textContent = 100 - tickets.filter(t=>t.sold).length;
+    }
+
+    // ===== DASHBOARD =====
+    function updateDashboard() {
+      const sold = tickets.filter(t=>t.sold);
+      const totalSold = sold.length;
+      const totalAvail = tickets.length - totalSold;
+      const totalValue = sold.reduce((sum,t)=>sum + t.price, 0);
+      document.getElementById('dashSold').textContent = totalSold;
+      document.getElementById('dashAvailable').textContent = totalAvail;
+      document.getElementById('dashValue').textContent = `R$ ${totalValue.toFixed(2).replace('.',',')}`;
+    }
+
+    // ===== RENDER BILHETES =====
+    function renderTickets() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      tickets.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'ticket ' + (t.sold?'sold':'available');
+        el.id = 'ticket-'+t.id;
+        el.innerHTML = `
+          <div class="top">
+            <div class="num">#${t.id.toString().padStart(3,'0')}</div>
+            <div>R$ ${t.price.toFixed(2)}</div>
+          </div>
+          <div><strong style="color:black">${t.name}</strong></div>
+          <div class="buyer">${t.sold?`Comprador: <strong style="color:black">${t.buyer}</strong>`:'Disponível'}</div>
+          <div class="actions"></div>
+        `;
+        const actions = el.querySelector('.actions');
+
+		if(t.sold){
+		  // Ver detalhes
+		  const info = document.createElement('button');
+		  info.textContent = 'Ver';
+		  info.title = 'Ver detalhes do bilhete';
+		  info.onclick = () => showModal(t);
+		  actions.appendChild(info);
+
+		  // WhatsApp (apenas vendedor que vendeu)
+		  if(CURRENT_SELLER && t.seller === CURRENT_SELLER){
+			const wa = document.createElement('button');
+			wa.textContent = 'WhatsApp';
+			wa.onclick = () => sendWhatsApp(t);
+			actions.appendChild(wa);
+
+			// Cancelar venda (apenas vendedor)
+			const cancel = document.createElement('button');
+			cancel.textContent = 'Cancelar';
+			cancel.className = 'secondary';
+			cancel.onclick = () => {
+			  if(confirm('Cancelar venda?')){
+				t.sold=false; t.buyer=null; t.phone=null; t.seller=null;
+				saveTickets();
+				renderTickets();
+			  }
+			};
+			actions.appendChild(cancel);
+		  }
+		} else {
+		  const buy = document.createElement('button');
+		  buy.textContent = 'Comprar';
+
+		  // Se não houver vendedor logado, desabilita o botão
+		  if (!CURRENT_SELLER) {
+			buy.disabled = true;
+			buy.title = 'Defina o vendedor para habilitar as vendas';
+			buy.style.opacity = '0.6';
+			buy.style.cursor = 'not-allowed';
+		  } else {
+			buy.onclick = () => buyTicket(t.id);
+		  }
+
+		  actions.appendChild(buy);
+		}
+
+        grid.appendChild(el);
+      });
+
+      updateCounts();
+      updateDashboard();
+      document.getElementById('buyModal').style.display='none';
+    }
+
+    // ===== FUNÇÕES =====
+    async function resetAll() {
+      if(!confirm('Resetar todas as vendas?')) return;
+      tickets = names.map((n,i)=>({id:i+1,name:n,buyer:null,phone:null,price:10,sold:false}));
+      await saveTickets();
+      renderTickets();
+    }
+
+    function drawWinner() {
+      const sold = tickets.filter(t=>t.sold);
+      if(!sold.length) return alert('Nenhum bilhete vendido.');
+      const w = sold[Math.floor(Math.random()*sold.length)];
+      document.querySelectorAll('.ticket').forEach(e => e.classList.remove('winner'));
+      document.getElementById('ticket-'+w.id)?.classList.add('winner');
+      alert(`🎉 Bilhete sorteado: #${w.id.toString().padStart(3,'0')}\n${w.name}\nComprador: ${w.buyer}`);
+    }
+
+    function exportCSV() {
+      let csv = 'ID,Nome,Bilhete,Comprador,Telefone,Preço,Status\n';
+      tickets.forEach(t=>{
+        csv += `${t.id},${t.name},#${t.id.toString().padStart(3,'0')},${t.buyer||''},${t.phone||''},${t.price},${t.sold?'Vendido':'Disponível'}\n`;
+      });
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = 'rifa.csv';
+      a.click();
+    }
+
+    // ===== MODAL =====
+    let currentTicket = null;
+
+    function showModal(ticket){
+      currentTicket = ticket;
+      document.getElementById('modalTitle').textContent = `Bilhete #${ticket.id.toString().padStart(3,'0')}`;
+      document.getElementById('modalName').textContent = `Nome: ${ticket.name}`;
+      document.getElementById('modalBuyer').textContent = `Comprador: ${ticket.buyer||'---'}`;
+      document.getElementById('modalPhone').textContent = `Telefone: ${ticket.phone||'---'}`;
+      document.getElementById('modalPrice').textContent = `Preço: R$ ${ticket.price?.toFixed(2)||'---'}`;
+      document.getElementById('modalSeller').textContent = `Vendedor: ${ticket.seller||'---'}`;
+      document.getElementById('modalStatus').textContent = ticket.sold?'✅ VENDIDO':'Disponível';
+      document.getElementById('ticketModal').style.display = 'flex';
+    }
+
+    document.getElementById('closeModal').onclick = ()=> document.getElementById('ticketModal').style.display='none';
+    document.getElementById('closeBuyModal').onclick = ()=> document.getElementById('buyModal').style.display='none';
+
+    function buyTicket(id){
+      currentTicket = tickets.find(t=>t.id===id);
+      if(!currentTicket) return;
+      document.getElementById('buyTicketNum').textContent = `Bilhete #${currentTicket.id.toString().padStart(3,'0')}`;
+      document.getElementById('buyerName').value = '';
+      document.getElementById('buyerPhone').value = '';
+      document.getElementById('buyerPrice').value = currentTicket.price;
+      document.getElementById('buyModal').style.display='flex';
+    }
+
+    document.getElementById('buyForm').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentTicket) return;
+
+      const name = document.getElementById('buyerName').value.trim();
+      const phone = document.getElementById('buyerPhone').value.trim().replace(/\D/g,'');
+      const price = Number(document.getElementById('buyerPrice').value);
+
+      if(!name) return alert('Preencha corretamente o nome do comprador.');
+      if(!phone || phone.length<10) return alert('Preencha corretamente o telefone (DDD + número).');
+      if(isNaN(price) || price<=0) return alert('Informe um preço válido.');
+
+      currentTicket.buyer = name;
+      currentTicket.phone = phone;
+      currentTicket.price = price;
+      currentTicket.sold = true;
+      currentTicket.seller = CURRENT_SELLER;
+
+      try{
+        await saveTickets();
+        renderTickets();
+        document.getElementById('buyerName').value='';
+        document.getElementById('buyerPhone').value='';
+        document.getElementById('buyerPrice').value='';
+        currentTicket=null;
+        document.getElementById('buyModal').style.display='none';
+      }catch(err){
+        console.error(err);
+        alert('Erro ao salvar a compra. Tente novamente.');
+      }
+    };
+
+    function sendWhatsApp(ticket){
+      if(!ticket.phone) return alert('Bilhete não vendido ainda.');
+      const msg = `🎟️ Bilhete: #${ticket.id.toString().padStart(3,'0')}\nNome: ${ticket.name}\nComprador: ${ticket.buyer}\nSorteio: 30/11/2025`;
+      const url = `https://wa.me/${ticket.phone}?text=${encodeURIComponent(msg)}`;
+      window.open(url,'_blank');
+    }
+
+    // ===== INICIALIZAÇÃO =====
+    loadTickets();
+
+  </script>
+</body>
+</html>
